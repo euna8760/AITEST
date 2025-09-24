@@ -1,0 +1,36 @@
+name: AI Code Review
+
+# PR이 생성되거나 수정될 때 실행
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 1단계: 코드 가져오기
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    # 2단계: Python 설치
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+    
+    # 3단계: 필요한 라이브러리 설치
+    - name: Install dependencies
+      run: |
+        pip install PyGithub
+        pip install anthropic
+    
+    # 4단계: AI 리뷰 스크립트 실행
+    - name: Run AI Review
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+      run: python scripts/ai_reviewer.py
